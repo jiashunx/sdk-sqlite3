@@ -107,6 +107,7 @@ public class SQLite3ConnectionPool {
      */
     public synchronized void addReadConnection(Connection connection) throws SQLite3Exception {
         if (connection != null) {
+            logger.debug("==>>添加数据库读连接: {}", connection.hashCode());
             checkReadConnectionPoolStatus();
             SQLite3ReadOnlyConnection readConnection = new SQLite3ReadOnlyConnection(this, connection);
             synchronized (readConnectionPool) {
@@ -124,10 +125,12 @@ public class SQLite3ConnectionPool {
      */
     public void release(SQLite3Connection connection) {
         if (connection instanceof SQLite3ReadOnlyConnection) {
+            logger.debug("==>>释放数据库连接（读连接）");
             release(readConnectionPool, connection);
             return;
         }
         if (connection instanceof SQLite3WriteOnlyConnection) {
+            logger.debug("==>>释放数据库连接（写连接）");
             release(writeConnectionPool, connection);
         }
     }
@@ -155,7 +158,9 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception
      */
     public synchronized void close() throws InterruptedException, SQLite3Exception {
+        logger.debug("==>>关闭SQLite3数据库连接池");
         synchronized (writeConnectionPool) {
+            logger.debug("==>>关闭SQLite3数据库连接池（写连接池）");
             writeConnectionPoolStatus = SQLite3ConnectionPoolStatus.CLOSING;
             while (writeConnectionPool.size() != writeConnectionPoolSize) {
                 writeConnectionPool.wait();
@@ -166,6 +171,7 @@ public class SQLite3ConnectionPool {
             writeConnectionPoolStatus = SQLite3ConnectionPoolStatus.SHUTDOWN;
         }
         synchronized (readConnectionPool) {
+            logger.debug("==>>关闭SQLite3数据库连接池（读连接池）");
             readConnectionPoolStatus = SQLite3ConnectionPoolStatus.CLOSING;
             while (readConnectionPool.size() != readConnectionPoolSize) {
                 readConnectionPool.wait();
@@ -186,9 +192,7 @@ public class SQLite3ConnectionPool {
         try {
             return fetchWriteConnection(0);
         } catch (InterruptedException exception) {
-            if (logger.isErrorEnabled()) {
-                logger.error("fetch write connection from pool [{}] failed, there is InterruptedException occurred", getPoolName(), exception);
-            }
+            logger.error("fetch write connection from pool [{}] failed, there is InterruptedException occurred", getPoolName(), exception);
         }
         return null;
     }
@@ -201,6 +205,7 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception SQLite3异常
      */
     public SQLite3Connection fetchWriteConnection(long timeoutMillis) throws InterruptedException, SQLite3Exception {
+        logger.debug("==>>获取SQLite3 数据库写连接，超时时间：{}ms", timeoutMillis);
         return fetchConnection(writeConnectionPool, timeoutMillis, this::checkWriteConnectionPoolStatus);
     }
 
@@ -213,9 +218,7 @@ public class SQLite3ConnectionPool {
         try {
             return fetchReadConnection(0);
         } catch (InterruptedException exception) {
-            if (logger.isErrorEnabled()) {
-                logger.error("fetch read connection from pool [{}] failed, there is InterruptedException occurred", getPoolName(), exception);
-            }
+            logger.error("fetch read connection from pool [{}] failed, there is InterruptedException occurred", getPoolName(), exception);
         }
         return null;
     }
@@ -228,6 +231,7 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception SQLite3异常
      */
     public SQLite3Connection fetchReadConnection(long timeoutMillis) throws InterruptedException, SQLite3Exception {
+        logger.debug("==>>获取SQLite3 数据库读连接，超时时间：{}ms", timeoutMillis);
         return fetchConnection(readConnectionPool, timeoutMillis, this::checkReadConnectionPoolStatus);
     }
 
@@ -280,6 +284,7 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception 不为running状态则抛出异常
      */
     private void checkReadConnectionPoolStatus() throws SQLite3Exception {
+        logger.debug("==>>读连接池状态检查（检查是否运行中）");
         if (readConnectionPoolStatus == SQLite3ConnectionPoolStatus.CLOSING) {
             throw new SQLite3Exception(String.format("connection pool [%s] for reading is closing.", getPoolName()));
         }
@@ -297,6 +302,7 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception 不为running状态则抛出异常
      */
     private void checkWriteConnectionPoolStatus() throws SQLite3Exception {
+        logger.debug("==>>写连接池状态检查（检查是否运行中）");
         if (writeConnectionPoolStatus == SQLite3ConnectionPoolStatus.CLOSING) {
             throw new SQLite3Exception(String.format("connection pool [%s] for writing is closing.", getPoolName()));
         }

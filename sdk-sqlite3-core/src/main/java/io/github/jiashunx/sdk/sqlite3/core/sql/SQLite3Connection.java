@@ -88,6 +88,7 @@ public abstract class SQLite3Connection {
      * @throws SQLite3Exception SQLite3异常
      */
     public <R> R read(Function<Connection, R> function) throws SQLite3Exception {
+        logger.debug("==>>数据库连接读处理-BGN");
         AtomicReference<R> reference = new AtomicReference<>();
         doCheck(() -> {
             connectionPool.getActionReadLock().lock();
@@ -97,6 +98,7 @@ public abstract class SQLite3Connection {
                 connectionPool.getActionReadLock().unlock();;
             }
         });
+        logger.debug("==>>数据库连接读处理-END");
         return reference.get();
     }
 
@@ -120,6 +122,7 @@ public abstract class SQLite3Connection {
      * @throws SQLite3Exception SQLite3异常
      */
     public <R> R write(Function<Connection, R> function) throws SQLite3Exception {
+        logger.debug("==>>数据库连接写处理-BGN");
         AtomicReference<R> reference = new AtomicReference<>();
         doCheck(() -> {
             connectionPool.getActionWriteLock().lock();
@@ -129,6 +132,7 @@ public abstract class SQLite3Connection {
                 connectionPool.getActionWriteLock().unlock();
             }
         });
+        logger.debug("==>>数据库连接写处理-END");
         return reference.get();
     }
 
@@ -137,6 +141,7 @@ public abstract class SQLite3Connection {
      * @throws SQLite3Exception SQLite3异常
      */
     public synchronized void close() throws SQLite3Exception {
+        logger.debug("==>>关闭连接-BGN");
         // 关闭连接需更新连接状态，因此进行写处理
         doWrite(() -> {
             if (closed) {
@@ -145,11 +150,10 @@ public abstract class SQLite3Connection {
             try {
                 connection.close();
             } catch (Throwable throwable) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("connection [{}] close failed.", getName(), throwable);
-                }
+                logger.error("connection [{}] close failed.", getName(), throwable);
             } finally {
                 closed = true;
+                logger.debug("==>>关闭连接-END");
             }
         });
     }
@@ -160,6 +164,7 @@ public abstract class SQLite3Connection {
      * @throws SQLite3Exception SQLite3异常
      */
     private void doCheck(VoidFunc voidFunc) throws SQLite3Exception {
+        logger.debug("==>>连接状态检查处理-BGN");
         doRead(() -> {
             if (closed) {
                 throw new SQLite3Exception("connection is closed.");
@@ -167,6 +172,7 @@ public abstract class SQLite3Connection {
             if (voidFunc != null) {
                 voidFunc.apply();
             }
+            logger.debug("==>>连接状态检查处理-END");
         });
     }
 
@@ -175,6 +181,7 @@ public abstract class SQLite3Connection {
      * @param voidFunc 无入参无返回值Function
      */
     private void doRead(VoidFunc voidFunc) {
+        logger.debug("==>>连接读处理-BGN");
         actionLock.readLock().lock();
         try {
             if (voidFunc != null) {
@@ -182,6 +189,7 @@ public abstract class SQLite3Connection {
             }
         } finally {
             actionLock.readLock().unlock();
+            logger.debug("==>>连接读处理-END");
         }
     }
 
@@ -190,6 +198,7 @@ public abstract class SQLite3Connection {
      * @param voidFunc 无入参无返回值Function对象
      */
     private void doWrite(VoidFunc voidFunc) {
+        logger.debug("==>>连接写处理-BGN");
         actionLock.writeLock().lock();
         try {
             if (voidFunc != null) {
@@ -197,6 +206,7 @@ public abstract class SQLite3Connection {
             }
         } finally {
             actionLock.writeLock().unlock();
+            logger.debug("==>>连接写处理-END");
         }
     }
 

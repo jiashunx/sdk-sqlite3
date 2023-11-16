@@ -196,9 +196,7 @@ public class SQLite3Utils {
         try {
             closeable.close();
         } catch (Exception exception) {
-            if (logger.isErrorEnabled()) {
-                logger.error("close AutoCloseable object [{}] failed.", closeable.getClass(), exception);
-            }
+            logger.error("close AutoCloseable object [{}] failed.", closeable.getClass(), exception);
         }
     }
 

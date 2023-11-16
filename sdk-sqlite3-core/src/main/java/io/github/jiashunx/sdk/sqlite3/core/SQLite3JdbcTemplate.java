@@ -31,122 +31,219 @@ public class SQLite3JdbcTemplate {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLite3JdbcTemplate.class);
 
+    /**
+     * 空对象实现
+     */
     private static final Object EMPTY_OBJECT = new byte[0];
 
+    /**
+     * 上下文-事务标志
+     */
     private static final ThreadLocal<Boolean> TX_MODE = new ThreadLocal<>();
 
+    /**
+     * 上下文-数据库连接
+     */
     private static final ThreadLocal<SQLite3Connection> TX_CONNECTION = new ThreadLocal<>();
 
-    public static boolean isInTransactionModel() {
-        return TX_MODE.get() != null && TX_MODE.get();
+    /**
+     * 从上下文获取当前是否事务模式
+     * @return 上下文-事务标志
+     */
+    private static boolean isInTxMode() {
+        boolean isInTxMode = TX_MODE.get() != null && TX_MODE.get();
+        logger.debug("从上下文获取当前是否事务模式: {}", isInTxMode);
+        return isInTxMode;
     }
 
-    public static SQLite3Connection getTxConnection() {
+    /**
+     * 从上下文获取当前数据库连接
+     * @return 上下文-数据库连接
+     */
+    private static SQLite3Connection getTxConnection() {
+        logger.debug("==>>从上下文获取当前数据库连接");
         return TX_CONNECTION.get();
     }
 
+    /**
+     * 设置上下文数据库连接
+     * @param connection 数据库连接
+     */
     private static void setTxMode(SQLite3Connection connection) {
-        if (isInTransactionModel() && getTxConnection() != connection) {
+        logger.debug("==>>设置上下文数据库连接");
+        if (isInTxMode() && getTxConnection() != connection) {
             throw new SQLite3Exception("transaction connection conflict.");
         }
         TX_CONNECTION.set(Objects.requireNonNull(connection));
         TX_MODE.set(true);
     }
 
+    /**
+     * 重置上下文事务模式及数据库连接
+     */
     private static void resetTxMode() {
+        logger.debug("==>>重置上下文事务模式及数据库连接");
         TX_CONNECTION.remove();
         TX_MODE.remove();
     }
 
+    /**
+     * SQLite3数据库连接池
+     */
     private SQLite3ConnectionPool connectionPool;
 
+    /**
+     * 构造方法
+     * @param fileName SQLite3数据库地址
+     */
     public SQLite3JdbcTemplate(String fileName) {
         this(SQLite3ConnectionPoolManager.create(fileName));
     }
 
+    /**
+     * 构造方法
+     * @param pool SQLite3数据库连接池
+     */
     public SQLite3JdbcTemplate(SQLite3ConnectionPool pool) {
         this();
-        this.connectionPool = pool;
+        this.connectionPool = Objects.requireNonNull(pool);
     }
 
-    public SQLite3JdbcTemplate() {}
+    /**
+     * 构造方法（私有）
+     */
+    private SQLite3JdbcTemplate() {}
 
-    private SQLite3ConnectionPool getConnectionPool() {
-        return Objects.requireNonNull(connectionPool);
-    }
-
-    private SQLite3Connection getWriteConnection() {
-        if (isInTransactionModel()) {
+    /**
+     * 获取SQLite3写连接
+     * @return SQLite3写连接
+     */
+    private SQLite3Connection fetchWriteConnection() {
+        logger.debug("==>>获取SQLite3写连接");
+        if (isInTxMode()) {
             return getTxConnection();
         }
-        return getConnectionPool().fetchWriteConnection();
+        return connectionPool.fetchWriteConnection();
     }
 
+    /**
+     * 写处理
+     * @param consumer 写处理消费
+     */
     private void write(Consumer<Connection> consumer) {
-        write(getWriteConnection(), consumer);
+        write(fetchWriteConnection(), consumer);
     }
 
+    /**
+     * 写处理
+     * @param connection SQLite3写连接
+     * @param consumer 写处理消费
+     */
     private void write(SQLite3Connection connection, Consumer<Connection> consumer) {
+        logger.debug("==>>写处理");
         connection.write(c -> {
             try {
                 consumer.accept(c);
             } finally {
-                if (!isInTransactionModel()) {
+                if (!isInTxMode()) {
                     connection.release();
                 }
             }
         });
     }
 
+    /**
+     * 写处理
+     * @param function 写处理方法
+     * @param <R> 写处理返回对象类型
+     * @return 写处理返回对象
+     */
     private <R> R write(Function<Connection, R> function) {
-        return write(getWriteConnection(), function);
+        return write(fetchWriteConnection(), function);
     }
 
+    /**
+     * 写处理
+     * @param connection SQLite3写连接
+     * @param function 写处理方法
+     * @param <R> 写处理返回对象类型
+     * @return 写处理返回对象
+     */
     private <R> R write(SQLite3Connection connection, Function<Connection, R> function) {
+        logger.debug("==>>写处理");
         return connection.write(c -> {
             try {
                 return function.apply(c);
             } finally {
-                if (!isInTransactionModel()) {
+                if (!isInTxMode()) {
                     connection.release();
                 }
             }
         });
     }
 
-    private SQLite3Connection getReadConnection() {
-        if (isInTransactionModel()) {
+    /**
+     * 获取SQLite3读连接
+     * @return SQLite3读连接
+     */
+    private SQLite3Connection fetchReadConnection() {
+        logger.debug("==>>获取SQLite3读连接");
+        if (isInTxMode()) {
             return getTxConnection();
         }
-        return getConnectionPool().fetchReadConnection();
+        return connectionPool.fetchReadConnection();
     }
 
-    private void query(Consumer<Connection> consumer) {
-        query(getReadConnection(), consumer);
+    /**
+     * 读处理
+     * @param consumer 读处理消费
+     */
+    private void read(Consumer<Connection> consumer) {
+        read(fetchReadConnection(), consumer);
     }
 
-    private void query(SQLite3Connection connection, Consumer<Connection> consumer) {
+    /**
+     * 读处理
+     * @param connection SQLite3读连接
+     * @param consumer 读处理消费
+     */
+    private void read(SQLite3Connection connection, Consumer<Connection> consumer) {
+        logger.debug("==>>读处理");
         connection.read(c -> {
             try {
                 consumer.accept(c);
             } finally {
-                if (!isInTransactionModel()) {
+                if (!isInTxMode()) {
                     connection.release();
                 }
             }
         });
     }
 
-    private <R> R query(Function<Connection, R> function) {
-        return query(getReadConnection(), function);
+    /**
+     * 读处理
+     * @param function 读处理方法
+     * @param <R> 读处理返回对象类型
+     * @return 读处理返回对象
+     */
+    private <R> R read(Function<Connection, R> function) {
+        return read(fetchReadConnection(), function);
     }
 
-    private <R> R query(SQLite3Connection connection, Function<Connection, R> function) {
+    /**
+     * 读处理
+     * @param connection SQLite3读连接
+     * @param function 读处理方法
+     * @param <R> 读处理返回对象类型
+     * @return 读处理返回对象
+     */
+    private <R> R read(SQLite3Connection connection, Function<Connection, R> function) {
+        logger.debug("==>>读处理");
         return connection.read(c -> {
             try {
                 return function.apply(c);
             } finally {
-                if (!isInTransactionModel()) {
+                if (!isInTxMode()) {
                     connection.release();
                 }
             }
@@ -178,66 +275,170 @@ public class SQLite3JdbcTemplate {
 //        return SQLite3Utils.parseQueryResult(queryForResult(sql, consumer), klass);
 //    }
 
+    /**
+     * 查询并返回boolean值
+     * @param sql 待执行sql语句
+     * @return boolean值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean queryForBoolean(String sql) throws SQLite3Exception {
         return queryForBoolean(sql, s -> {});
     }
 
+    /**
+     * 查询并返回boolean值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return boolean值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean queryForBoolean(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Boolean.parseBoolean(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回byte值
+     * @param sql 待执行sql语句
+     * @return byte值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public byte queryForByte(String sql) throws SQLite3Exception {
         return queryForByte(sql, s -> {});
     }
 
+    /**
+     * 查询并返回byte值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return byte值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public byte queryForByte(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Byte.parseByte(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回short值
+     * @param sql 待执行sql语句
+     * @return short值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public short queryForShort(String sql) throws SQLite3Exception {
         return queryForShort(sql, s -> {});
     }
 
+    /**
+     * 查询并返回short值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return short值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public short queryForShort(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Short.parseShort(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回int值
+     * @param sql 待执行sql语句
+     * @return int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int queryForInt(String sql) throws SQLite3Exception {
         return queryForInt(sql, s -> {});
     }
 
+    /**
+     * 查询并返回int值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int queryForInt(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Integer.parseInt(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回float值
+     * @param sql 待执行sql语句
+     * @return float值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public float queryForFloat(String sql) throws SQLite3Exception {
         return queryForFloat(sql, s -> {});
     }
 
+    /**
+     * 查询并返回float值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return float值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public float queryForFloat(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Float.parseFloat(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回double值
+     * @param sql 待执行sql语句
+     * @return double值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public double queryForDouble(String sql) throws SQLite3Exception {
         return queryForDouble(sql, s -> {});
     }
 
+    /**
+     * 查询并返回double值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return double值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public double queryForDouble(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return Double.parseDouble(queryForString(sql, consumer));
     }
 
+    /**
+     * 查询并返回String值
+     * @param sql 待执行sql语句
+     * @return String值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public String queryForString(String sql) throws SQLite3Exception {
         return queryForString(sql, s -> {});
     }
 
+    /**
+     * 查询并返回String值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return String值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public String queryForString(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return queryForOneValue(sql, consumer).toString();
     }
 
+    /**
+     * 查询并返回单个字段值
+     * @param sql 待执行sql语句
+     * @return 单个字段值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public Object queryForOneValue(String sql) throws SQLite3Exception {
         return queryForOneValue(sql, s -> {});
     }
 
+    /**
+     * 查询并返回单个字段值
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return 单个字段值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public Object queryForOneValue(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         Map<String, Object> resultMap = queryForMap(sql, consumer);
         if (resultMap == null || resultMap.isEmpty()) {
@@ -249,10 +450,23 @@ public class SQLite3JdbcTemplate {
         return resultMap.get(resultMap.keySet().toArray(new String[0])[0]);
     }
 
+    /**
+     * 查询并返回单条数据Map
+     * @param sql 待执行sql语句
+     * @return 单条数据Map
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public Map<String, Object> queryForMap(String sql) throws SQLite3Exception {
         return queryForMap(sql, s -> {});
     }
 
+    /**
+     * 查询并返回单条数据Map
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return 单条数据Map
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public Map<String, Object> queryForMap(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         List<Map<String, Object>> mapList = queryForList(sql, consumer);
         Map<String, Object> retMap = null;
@@ -265,20 +479,47 @@ public class SQLite3JdbcTemplate {
         return retMap;
     }
 
+    /**
+     * 查询并返回数据集List
+     * @param sql 待执行sql语句
+     * @return 数据集List
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public List<Map<String, Object>> queryForList(String sql) throws SQLite3Exception {
         return queryForList(sql, s -> {});
     }
 
+    /**
+     * 查询并返回数据集List
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return 数据集List
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public List<Map<String, Object>> queryForList(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
         return queryForResult(sql, consumer).getRetMapList();
     }
 
+    /**
+     * 查询并返回查询结果
+     * @param sql 待执行sql语句
+     * @return 查询结果
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public QueryResult queryForResult(String sql) throws SQLite3Exception {
         return queryForResult(sql, s -> {});
     }
 
+    /**
+     * 查询并返回查询结果
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return 查询结果
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public QueryResult queryForResult(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
-        return query(connection -> {
+        logger.debug("==>>查询并返回查询结果，执行sql：{}", sql);
+        return read(connection -> {
             SQLite3PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
@@ -297,12 +538,25 @@ public class SQLite3JdbcTemplate {
         });
     }
 
+    /**
+     * 判断数据表是否存在
+     * @param tableName 表名称
+     * @return 数据表是否存在（true-存在，false-不存在）
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean isTableExists(String tableName) throws SQLite3Exception {
         return queryForInt("SELECT COUNT(1) FROM sqlite_master M WHERE M.type='table' AND M.name=?", statement -> {
             statement.setString(1, tableName);
         }) == 1;
     }
 
+    /**
+     * 判断数据表字段是否存在
+     * @param tableName 表名称
+     * @param columnName 字段名称
+     * @return 数据表字段是否存在（true-存在，false-不存在）
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean isTableColumnExists(String tableName, String columnName) throws SQLite3Exception {
         if (isTableExists(tableName)) {
             return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='table' AND M.name=?", statement -> {
@@ -312,40 +566,89 @@ public class SQLite3JdbcTemplate {
         return false;
     }
 
+    /**
+     * 判断视图是否存在
+     * @param viewName 视图名称
+     * @return 视图是否存在（true-存在，false-不存在）
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean isViewExists(String viewName) throws SQLite3Exception {
         return queryForInt("SELECT COUNT(1) FROM sqlite_master M WHERE M.type='view' AND M.name=?", statement -> {
             statement.setString(1, viewName);
         }) == 1;
     }
 
+    /**
+     * 判断索引是否存在
+     * @param indexName 索引名称
+     * @return 索引是否存在（true-存在，false-不存在）
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean isIndexExists(String indexName) throws SQLite3Exception {
         return queryForInt("SELECT COUNT(1) FROM sqlite_master M WHERE M.type='index' AND M.name=?", statement -> {
             statement.setString(1, indexName);
         }) == 1;
     }
 
+    /**
+     * 判断触发器是否存在
+     * @param triggerName 触发器名称
+     * @return 触发器是否存在（true-存在，false-不存在）
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public boolean isTriggerExists(String triggerName) throws SQLite3Exception {
         return queryForInt("SELECT COUNT(1) FROM sqlite_master M WHERE M.type='trigger' AND M.name=?", statement -> {
             statement.setString(1, triggerName);
         }) == 1;
     }
 
+    /**
+     * 删除表
+     * @param tableName 表名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int dropTable(String tableName) throws SQLite3Exception {
         return executeUpdate("DROP TABLE " + tableName);
     }
 
+    /**
+     * 删除表字段
+     * @param tableName 表名称
+     * @param columnName 字段名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int dropTableColumn(String tableName, String columnName) throws SQLite3Exception {
         return executeUpdate("ALTER TABLE " + tableName + " DROP COLUMN " + columnName);
     }
 
+    /**
+     * 删除索引
+     * @param indexName 索引名称
+     * @return  操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int dropIndex(String indexName) throws SQLite3Exception {
         return executeUpdate("DROP INDEX " + indexName);
     }
 
+    /**
+     * 删除触发器
+     * @param triggerName 触发器名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int dropTrigger(String triggerName) throws SQLite3Exception {
         return executeUpdate("DROP TRIGGER " + triggerName);
     }
 
+    /**
+     * 获取表定义DDL
+     * @param tableName 表名称
+     * @return 表定义DDL
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public String getTableDefineSQL(String tableName) throws SQLite3Exception {
         if (isTableExists(tableName)) {
             return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='table' AND M.name=?", statement -> {
@@ -355,6 +658,12 @@ public class SQLite3JdbcTemplate {
         return null;
     }
 
+    /**
+     * 获取视图定义DDL
+     * @param viewName 视图名称
+     * @return 视图定义DDL
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public String getViewDefineSQL(String viewName) throws SQLite3Exception {
         if (isViewExists(viewName)) {
             return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='view' AND M.name=?", statement -> {
@@ -364,6 +673,12 @@ public class SQLite3JdbcTemplate {
         return null;
     }
 
+    /**
+     * 查询数据表总条数
+     * @param tableName 表名称
+     * @return 总条数
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int queryTableRowCount(String tableName) throws SQLite3Exception {
         if (!isTableExists(tableName)) {
             return 0;
@@ -371,9 +686,15 @@ public class SQLite3JdbcTemplate {
         return queryForInt("SELECT COUNT(1) FROM " + tableName);
     }
 
+    /**
+     * 查询数据表列的元数据信息
+     * @param tableName 表名称
+     * @return 数据表列的元数据信息
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public Map<String, ColumnMetadata> queryTableColumnMetadata(String tableName) throws SQLite3Exception {
         String sql = String.format("SELECT * FROM %s LIMIT 0", tableName);
-        return query(connection -> {
+        return read(connection -> {
             SQLite3PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
@@ -389,9 +710,17 @@ public class SQLite3JdbcTemplate {
         });
     }
 
+    /**
+     * 批量事务处理（不可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
+     * @param supplier 返回值supplier
+     * @param <R> 返回值类型
+     * @return 返回值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public <R> R doTransaction(Supplier<R> supplier) throws SQLite3Exception {
-        boolean hasPrevTransaction = isInTransactionModel();
-        SQLite3Connection sqLite3Connection = getWriteConnection();
+        logger.debug("==>>批量事务处理-BGN");
+        boolean hasPrevTransaction = isInTxMode();
+        SQLite3Connection sqLite3Connection = fetchWriteConnection();
         setTxMode(sqLite3Connection);
         return write(sqLite3Connection, connection -> {
             try {
@@ -422,11 +751,17 @@ public class SQLite3JdbcTemplate {
             } finally {
                 if (!hasPrevTransaction) {
                     resetTxMode();
+                    logger.debug("==>>批量事务处理-END");
                 }
             }
         });
     }
 
+    /**
+     * 批量事务处理（不可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
+     * @param voidFunc 无参无返回值Function
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public void doTransaction(VoidFunc voidFunc) throws SQLite3Exception {
         doTransaction(() -> {
             voidFunc.apply();
@@ -482,11 +817,25 @@ public class SQLite3JdbcTemplate {
 //        return updateOrInsert(objList, TableModel::getInsertSQL);
 //    }
 
+    /**
+     * 批量更新处理（多个不同sql）
+     * @param sqlArr 待执行sql语句数组
+     * @return 批量更新返回int值数组
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int[] batchUpdate(String[] sqlArr) throws SQLite3Exception {
         return batchUpdate(sqlArr, (index, statement) -> {});
     }
 
+    /**
+     * 批量更新处理（多个不同sql）
+     * @param sqlArr 待执行sql语句（占位）数组
+     * @param consumer sql语句预编译处理（输入-序号（从0开始）+预编译处理对账）
+     * @return 批量更新返回int值数组
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int[] batchUpdate(String[] sqlArr, BiConsumer<Integer, SQLite3PreparedStatement> consumer) throws SQLite3Exception {
+        logger.debug("==>>批量更新处理（多个不同sql）");
         return doTransaction(() -> write(connection -> {
             int[] effectedRowArr = new int[sqlArr.length];
             SQLite3PreparedStatement statement = null;
@@ -494,6 +843,7 @@ public class SQLite3JdbcTemplate {
                 for (int index = 0; index < sqlArr.length; index++) {
                     String sql = sqlArr[index];
                     try {
+                        logger.debug("==>>批量更新处理（多个不同sql），执行sql：{}", sql);
                         statement = new SQLite3PreparedStatement(connection.prepareStatement(sql));
                         if (consumer != null) {
                             consumer.accept(index, statement);
@@ -513,11 +863,21 @@ public class SQLite3JdbcTemplate {
         }));
     }
 
+    /**
+     * 批量更新处理（一组相同sql）
+     * @param sql 待执行sql语句（占位）
+     * @param rowCount 批量更新条数
+     * @param consumer sql语句预编译处理（输入-序号（从0开始）+预编译处理对账）
+     * @return 批量更新返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int batchUpdate(String sql, int rowCount, BiConsumer<Integer, SQLite3PreparedStatement> consumer) throws SQLite3Exception {
+        logger.debug("==>>批量更新处理（一组相同sql）");
         return doTransaction(() -> write(connection -> {
             int effectedRowCount = 0;
             SQLite3PreparedStatement statement = null;
             try {
+                logger.debug("==>>批量更新处理（一组相同sql），执行sql：{}", sql);
                 statement = new SQLite3PreparedStatement(connection.prepareStatement(sql));
                 for (int i = 0; i < rowCount; i++) {
                     if (consumer != null) {
@@ -535,14 +895,29 @@ public class SQLite3JdbcTemplate {
         }));
     }
 
+    /**
+     * 单笔更新处理
+     * @param sql 待执行sql语句
+     * @return 更新返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int executeUpdate(String sql) throws SQLite3Exception {
         return executeUpdate(sql, s -> {});
     }
 
+    /**
+     * 单笔更新处理
+     * @param sql 待执行sql语句（占位）
+     * @param consumer sql语句预编译处理
+     * @return 更新返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
     public int executeUpdate(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
+        logger.debug("==>>单笔更新处理");
         return doTransaction(() -> write(connection -> {
             SQLite3PreparedStatement statement = null;
             try {
+                logger.debug("==>>单笔更新处理，执行sql：{}", sql);
                 statement = new SQLite3PreparedStatement(connection.prepareStatement(sql));
                 if (consumer != null) {
                     consumer.accept(statement);

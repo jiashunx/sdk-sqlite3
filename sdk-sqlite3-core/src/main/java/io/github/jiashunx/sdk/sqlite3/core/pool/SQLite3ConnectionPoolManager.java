@@ -112,19 +112,15 @@ public class SQLite3ConnectionPoolManager {
             SQLite3ConnectionPool pool = POOL_MAP.get(dbFilePath);
             if (pool != null) {
                 if (poolSize > pool.getReadConnectionPoolSize()) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("found exists sqlite connection pool: {}", pool.getPoolName());
-                        logger.info("create sqlite connection, url: {}, username: {}, password: {}", $url, $username, $password);
-                    }
+                    logger.info("found exists sqlite connection pool: {}", pool.getPoolName());
+                    logger.info("create sqlite connection, url: {}, username: {}, password: {}", $url, $username, $password);
                     for (int i = 0, size = poolSize - pool.getReadConnectionPoolSize(); i < size; i++) {
                         pool.addReadConnection(DriverManager.getConnection($url, $username, $password));
                     }
                 }
                 return pool;
             }
-            if (logger.isInfoEnabled()) {
-                logger.info("create sqlite connection, url: {}, username: {}, password: {}", $url, $username, $password);
-            }
+            logger.info("create sqlite connection, url: {}, username: {}, password: {}", $url, $username, $password);
             // 写连接=1
             Connection writeConnection = DriverManager.getConnection($url, $username, $password);
             // 读连接=N-1
@@ -136,9 +132,7 @@ public class SQLite3ConnectionPoolManager {
             POOL_MAP.put(dbFilePath, pool);
             return pool;
         } catch (Throwable throwable) {
-            if (logger.isErrorEnabled()) {
-                logger.error("create sqlite connection pool failed.", throwable);
-            }
+            logger.error("create sqlite connection pool failed.", throwable);
         }
         return null;
     }
