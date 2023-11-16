@@ -52,7 +52,7 @@ public class SQLite3JdbcTemplate {
      */
     private static boolean isInTxMode() {
         boolean isInTxMode = TX_MODE.get() != null && TX_MODE.get();
-        logger.debug("从上下文获取当前是否事务模式: {}", isInTxMode);
+        logger.debug("==>>从上下文获取当前是否事务模式: {}", isInTxMode);
         return isInTxMode;
     }
 
@@ -119,7 +119,6 @@ public class SQLite3JdbcTemplate {
      * @return SQLite3写连接
      */
     private SQLite3Connection fetchWriteConnection() {
-        logger.debug("==>>获取SQLite3写连接");
         if (isInTxMode()) {
             return getTxConnection();
         }
@@ -187,7 +186,6 @@ public class SQLite3JdbcTemplate {
      * @return SQLite3读连接
      */
     private SQLite3Connection fetchReadConnection() {
-        logger.debug("==>>获取SQLite3读连接");
         if (isInTxMode()) {
             return getTxConnection();
         }
@@ -518,11 +516,11 @@ public class SQLite3JdbcTemplate {
      * @throws SQLite3Exception SQLite3Exception
      */
     public QueryResult queryForResult(String sql, Consumer<SQLite3PreparedStatement> consumer) throws SQLite3Exception {
-        logger.debug("==>>查询并返回查询结果，执行sql：{}", sql);
         return read(connection -> {
             SQLite3PreparedStatement statement = null;
             ResultSet resultSet = null;
             try {
+                logger.debug("==>>查询并返回查询结果，执行sql：{}", sql);
                 statement = new SQLite3PreparedStatement(connection.prepareStatement(sql));
                 if (consumer != null) {
                     consumer.accept(statement);
@@ -718,7 +716,7 @@ public class SQLite3JdbcTemplate {
      * @throws SQLite3Exception SQLite3Exception
      */
     public <R> R doTransaction(Supplier<R> supplier) throws SQLite3Exception {
-        logger.debug("==>>批量事务处理-BGN");
+        logger.debug("==>>批量事务处理");
         boolean hasPrevTransaction = isInTxMode();
         SQLite3Connection sqLite3Connection = fetchWriteConnection();
         setTxMode(sqLite3Connection);
@@ -751,7 +749,6 @@ public class SQLite3JdbcTemplate {
             } finally {
                 if (!hasPrevTransaction) {
                     resetTxMode();
-                    logger.debug("==>>批量事务处理-END");
                 }
             }
         });
