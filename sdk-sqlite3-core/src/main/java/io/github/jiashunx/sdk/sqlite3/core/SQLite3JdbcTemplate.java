@@ -60,7 +60,7 @@ public class SQLite3JdbcTemplate {
      * 从上下文获取当前数据库连接
      * @return 上下文-数据库连接
      */
-    private static SQLite3Connection getTxConnection() {
+    private static SQLite3Connection fetchTxConnection() {
         logger.debug("==>>从上下文获取当前数据库连接");
         return TX_CONNECTION.get();
     }
@@ -71,7 +71,7 @@ public class SQLite3JdbcTemplate {
      */
     private static void setTxMode(SQLite3Connection connection) {
         logger.debug("==>>设置上下文数据库连接");
-        if (isInTxMode() && getTxConnection() != connection) {
+        if (isInTxMode() && fetchTxConnection() != connection) {
             throw new SQLite3Exception("transaction connection conflict.");
         }
         TX_CONNECTION.set(Objects.requireNonNull(connection));
@@ -120,7 +120,7 @@ public class SQLite3JdbcTemplate {
      */
     private SQLite3Connection fetchWriteConnection() {
         if (isInTxMode()) {
-            return getTxConnection();
+            return fetchTxConnection();
         }
         return connectionPool.fetchWriteConnection();
     }
@@ -187,7 +187,7 @@ public class SQLite3JdbcTemplate {
      */
     private SQLite3Connection fetchReadConnection() {
         if (isInTxMode()) {
-            return getTxConnection();
+            return fetchTxConnection();
         }
         return connectionPool.fetchReadConnection();
     }
@@ -632,6 +632,16 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
+     * 删除视图
+     * @param viewName 视图名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public int dropView(String viewName) throws SQLite3Exception {
+        return executeUpdate("DROP VIEW " + viewName);
+    }
+
+    /**
      * 删除触发器
      * @param triggerName 触发器名称
      * @return 操作返回int值
@@ -657,6 +667,21 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
+     * 获取索引定义DDL
+     * @param indexName 索引名称
+     * @return 索引定义DDL
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public String getIndexDefineSQL(String indexName) throws SQLite3Exception {
+        if (isIndexExists(indexName)) {
+            return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='index' AND M.name=?", statement -> {
+                statement.setString(1, indexName);
+            });
+        }
+        return null;
+    }
+
+    /**
      * 获取视图定义DDL
      * @param viewName 视图名称
      * @return 视图定义DDL
@@ -666,6 +691,21 @@ public class SQLite3JdbcTemplate {
         if (isViewExists(viewName)) {
             return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='view' AND M.name=?", statement -> {
                 statement.setString(1, viewName);
+            });
+        }
+        return null;
+    }
+
+    /**
+     * 获取触发器定义DDL
+     * @param triggerName 触发器名称
+     * @return 触发器定义DDL
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public String getTriggerDefineSQL(String triggerName) throws SQLite3Exception {
+        if (isTriggerExists(triggerName)) {
+            return queryForString("SELECT M.sql FROM sqlite_master M WHERE M.type='trigger' AND M.name=?", statement -> {
+                statement.setString(1, triggerName);
             });
         }
         return null;
