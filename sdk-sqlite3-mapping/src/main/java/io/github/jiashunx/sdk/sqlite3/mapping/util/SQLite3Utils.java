@@ -87,23 +87,6 @@ public class SQLite3Utils extends io.github.jiashunx.sdk.sqlite3.core.util.SQLit
                             retColumnModel.setFieldValue(instanceRef.get(), (String) columnValue);
                         } else if (fieldType == boolean.class || fieldType == Boolean.class) {
                             retColumnModel.setFieldValue(instanceRef.get(), (Boolean) columnValue);
-                        }
-                        if (fieldType == java.util.Date.class) {
-                            int columnTypeOfMetadata = columnMetadata.getColumnType();
-                            switch (columnTypeOfMetadata) {
-                                case Types.DATE:
-                                    retColumnModel.setFieldValue(instanceRef.get(), transferDate((java.sql.Date) columnValue));
-                                    break;
-                                case Types.TIME:
-                                    retColumnModel.setFieldValue(instanceRef.get(), transferTime((java.sql.Time) columnValue));
-                                    break;
-                                case Types.TIMESTAMP:
-                                    retColumnModel.setFieldValue(instanceRef.get(), transferTimestamp((java.sql.Timestamp) columnValue));
-                                    break;
-                                default:
-                                    retColumnModel.setFieldValue(instanceRef.get(), columnValue);
-                                    break;
-                            }
                         } else if (fieldType == BigDecimal.class) {
                             retColumnModel.setFieldValue(instanceRef.get(), BigDecimal.valueOf(Double.parseDouble(String.valueOf(columnValue))));
                         } else {
