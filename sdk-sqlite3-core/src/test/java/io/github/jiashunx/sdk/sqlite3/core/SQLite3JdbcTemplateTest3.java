@@ -39,8 +39,7 @@ public class SQLite3JdbcTemplateTest3 {
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(() -> {
                 for (int a = 0; a < 100; a++) {
-                    int total = jdbcTemplate.queryForInt("select count(1) from AAA");
-                    logger.error(Thread.currentThread().getName() + " - AAA行数: " + total);
+                    logger.error(Thread.currentThread().getName() + " - AAA行数: " + jdbcTemplate.queryTableRowCount("AAA"));
                 }
             });
             thread.setName("AAA-read-" + (i + 1));
@@ -75,8 +74,7 @@ public class SQLite3JdbcTemplateTest3 {
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(() -> {
                 for (int a = 0; a < 100; a++) {
-                    int total = jdbcTemplate.queryForInt("select count(1) from BBB");
-                    logger.error(Thread.currentThread().getName() + " - BBB行数: " + total);
+                    logger.error(Thread.currentThread().getName() + " - BBB行数: " + jdbcTemplate.queryTableRowCount("BBB"));
                 }
             });
             thread.setName("BBB-read-" + (i + 1));
@@ -112,8 +110,8 @@ public class SQLite3JdbcTemplateTest3 {
         }
 
         // 最终结果
-        Assert.assertEquals(150, jdbcTemplate.queryForInt("select count(1) from AAA"));
-        Assert.assertEquals(150, jdbcTemplate.queryForInt("select count(1) from BBB"));
+        Assert.assertEquals(150, jdbcTemplate.queryTableRowCount("AAA"));
+        Assert.assertEquals(150, jdbcTemplate.queryTableRowCount("BBB"));
     }
 
 }

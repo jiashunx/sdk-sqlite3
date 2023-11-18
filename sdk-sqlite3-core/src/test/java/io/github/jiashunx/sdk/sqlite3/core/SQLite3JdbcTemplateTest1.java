@@ -25,6 +25,7 @@ public class SQLite3JdbcTemplateTest1 {
         Assert.assertTrue(jdbcTemplate.isTableColumnExists("AAA", "field_1"));
         jdbcTemplate.executeUpdate("alter table AAA add column field_3 int4");
         Assert.assertTrue(jdbcTemplate.isTableColumnExists("AAA", "field_3"));
+        System.out.println(jdbcTemplate.getTableDefineSQL("AAA"));
         // SQLite3不支持删除列（因此删除以下TestCase）
         // jdbcTemplate.dropTableColumn("AAA", "field_1");
         // Assert.assertFalse(jdbcTemplate.isTableColumnExists("AAA", "field_3"));
@@ -38,6 +39,7 @@ public class SQLite3JdbcTemplateTest1 {
         Assert.assertFalse(jdbcTemplate.isIndexExists("idx_BBB"));
         jdbcTemplate.executeUpdate("create index idx_BBB on BBB(field_1)");
         Assert.assertTrue(jdbcTemplate.isIndexExists("idx_BBB"));
+        System.out.println(jdbcTemplate.getIndexDefineSQL("idx_BBB"));
     }
 
     @Test
@@ -48,6 +50,7 @@ public class SQLite3JdbcTemplateTest1 {
         Assert.assertFalse(jdbcTemplate.isViewExists("view_CCC"));
         jdbcTemplate.executeUpdate("create view view_CCC as select * from view_CCC where field_2 > 10");
         Assert.assertTrue(jdbcTemplate.isViewExists("view_CCC"));
+        System.out.println(jdbcTemplate.getViewDefineSQL("view_CCC"));
     }
 
     @Test
@@ -60,6 +63,7 @@ public class SQLite3JdbcTemplateTest1 {
         Assert.assertFalse(jdbcTemplate.isTriggerExists("trigger_DDD"));
         jdbcTemplate.executeUpdate("create trigger trigger_DDD after insert on DDD begin insert into DDD2(field_1,field_2,field_3) values (new.field_1,new.field_2,now()); end");
         Assert.assertTrue(jdbcTemplate.isTriggerExists("trigger_DDD"));
+        System.out.println(jdbcTemplate.getTriggerDefineSQL("trigger_DDD"));
     }
 
 }
