@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<table-metadata id="mapping-test">
+    <!-- 数据查询SQL -->
+    <dql>
+        <sql id="00000000000001" desc="" class="io.github.jiashunx.sdk.sqlite3.mapping.SQLite3JdbcTemplate4.AAA">
+            <![CDATA[
+                select * from aaa;
+            ]]>
+        </sql>
+    </dql>
+    <!-- 数据操作SQL -->
+    <dml>
+        <sql id="0000002" desc="">
+            <![CDATA[
+                delete from aaa where field_id=?
+            ]]>
+        </sql>
+    </dml>
+    <!-- 数据定义SQL -->
+    <ddl>
+        <table name="aaa" desc="全量字段映射样例">
+            <column name="field_id" type="varchar" primary="true" length="32" />
+            <column name="field_varchar" type="varchar" length="32" not-null="true" />
+            <column name="field_nvarchar" type="nvarchar" default="jjj" />
+            <column name="field_integer" type="integer" />
+            <column name="field_mediumint" type="mediumint" />
+            <column name="field_int" type="int" comment="呵呵呵" />
+            <column name="field_int4" type="int4" />
+            <column name="field_text" type="text" />
+            <column name="field_float" type="float" />
+            <column name="field_blob" type="blob" />
+            <column name="field_boolean" type="boolean" />
+            <column name="field_bit" type="bit" />
+            <column name="field_numeric" type="numeric" />
+            <column name="field_decimal" type="decimal" />
+            <column name="field_date" type="date" />
+            <column name="field_time" type="time" />
+            <column name="field_timestamp" type="timestamp" />
+            <column name="field_int1" type="int1" />
+            <column name="field_tinyint" type="tinyint" />
+            <column name="field_int2" type="int2" />
+            <column name="field_smallint" type="smallint" />
+            <column name="field_int8" type="int8" />
+            <column name="field_bigint" type="bigint" />
+            <column name="field_real" type="real" />
+            <column name="field_double" type="double" />
+            <column name="field_char" type="char" length="32" />
+            <column name="field_longvarchar" type="longvarchar" />
+            <column name="field_clob" type="clob" />
+            <column name="field_tinytext" type="tinytext" />
+            <column name="field_mediumtext" type="mediumtext" />
+            <column name="field_longtext" type="longtext" />
+            <column name="field_nchar" type="nchar" />
+            <column name="field_longnvarchar" type="longnvarchar" />
+            <column name="field_nclob" type="nclob" />
+            <column name="field_binary" type="binary" />
+            <column name="field_varbinary" type="varbinary" />
+            <column name="field_longvarbinary" type="longvarbinary" />
+        </table>
+        <view name="view_aaa" temporary="false">
+            <!-- create view as select * from table where condition. -->
+            <![CDATA[
+                select * from aaa where 1=1
+            ]]>
+        </view>
+        <index name="index_aaa" table="aaa" unique="false">
+            <column name="field_varchar" />
+            <column name="field_integer" />
+        </index>
+        <table name="company" desc="">
+            <column name="id" type="int" primary="true" not-null="true" />
+            <column name="name" type="text" not-null="true" />
+            <column name="age" type="int" not-null="true" />
+            <column name="address" type="char" length="50" />
+            <column name="salary" type="real" />
+        </table>
+        <table name="audit" desc="company表的审计日志（使用触发器写入）">
+            <column name="emp_id" type="int" not-null="true" primary="true" />
+            <column name="entry_date" type="text" not-null="true" />
+        </table>
+        <trigger name="company_trigger" desc="">
+            <![CDATA[
+                create trigger company_trigger after insert
+                on company
+                begin
+                   insert into audit(emp_id, entry_date) values (new.id, datetime('now'));
+                end;
+            ]]>
+        </trigger>
+        <table name="test_table1" desc="外键测试-父表">
+            <column name="id" type="int" primary="true" not-null="true" />
+            <column name="name" type="text" not-null="true" />
+            <column name="age" type="int" not-null="true" />
+        </table>
+        <table name="test_table2" desc="外键测试-子表">
+            <column name="id" type="int" primary="true" not-null="true" />
+            <column name="name" type="text" not-null="true" />
+            <column name="pid" type="int" not-null="true" foreign-table="test_table1" foreign-column="id" />
+            <column name="pname" type="text" not-null="true" foreign-table="test_table1" foreign-column="name" />
+        </table>
+    </ddl>
+</table-metadata>
