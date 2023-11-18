@@ -110,6 +110,11 @@ public class SQLite3JdbcTemplateTest2 {
                 statement.setString(1, "string_" + index);
                 statement.setInt(2, index + 100);
             });
+            // 嵌套事务中可执行查询处理（查询未提交事务数据）
+            Map<String, Object> rowObj = jdbcTemplate.queryForMap("select * from DDD where field_1=?", statement -> {
+                statement.setString(1, "xyz");
+            });
+            Assert.assertNotNull(rowObj);
         });
         List<Map<String, Object>> rowObjList = jdbcTemplate.queryForList("select * from DDD order by field_2 desc");
         Assert.assertEquals(13, rowObjList.size());
