@@ -248,31 +248,6 @@ public class SQLite3JdbcTemplate {
         });
     }
 
-//    public <R> R queryForObj(String sql, Class<R> klass) throws SQLite3Exception {
-//        return queryForObj(sql, statement -> {}, klass);
-//    }
-
-//    public <R> R queryForObj(String sql, Consumer<SQLite3PreparedStatement> consumer, Class<R> klass)
-//            throws SQLite3Exception {
-//        List<R> retList = queryForList(sql, consumer, klass);
-//        if (retList == null || retList.isEmpty()) {
-//            return null;
-//        }
-//        if (retList.size() > 1) {
-//            throw new SQLite3Exception(String.format("query result contains more than one column, sql: %s", sql));
-//        }
-//        return retList.get(0);
-//    }
-
-//    public <R> List<R> queryForList(String sql, Class<R> klass) throws SQLite3Exception {
-//        return queryForList(sql, statement -> {}, klass);
-//    }
-
-//    public <R> List<R> queryForList(String sql, Consumer<SQLite3PreparedStatement> consumer, Class<R> klass)
-//            throws SQLite3Exception {
-//        return SQLite3Utils.parseQueryResult(queryForResult(sql, consumer), klass);
-//    }
-
     /**
      * 查询并返回boolean值
      * @param sql 待执行sql语句
@@ -805,54 +780,6 @@ public class SQLite3JdbcTemplate {
             return EMPTY_OBJECT;
         });
     }
-
-//    public int update(Object object) throws SQLite3Exception {
-//        List<Object> objectList = new ArrayList<>(1);
-//        objectList.add(object);
-//        return update(objectList);
-//    }
-//
-//    public int update(List<?> objList) throws SQLite3Exception {
-//        return updateOrInsert(objList, TableModel::getUpdateSQL);
-//    }
-//
-//    private int updateOrInsert(List<?> objList, Function<TableModel, String> sqlFunc) throws SQLite3Exception {
-//        int retValue = 0;
-//        List<?> $objList = Objects.requireNonNull(objList);
-//        if (!$objList.isEmpty()) {
-//            List<String> sqlList = new ArrayList<>();
-//            List<Consumer<SQLite3PreparedStatement>> consumerList = new ArrayList<>();
-//            $objList.forEach(object -> {
-//                Object $object = Objects.requireNonNull(object);
-//                Class<?> objClass = $object.getClass();
-//                TableModel tableModel = SQLite3Utils.getClassTableModel(objClass);
-//                Map<String, ColumnMetadata> columnMetadata = tableModel.getColumnMetadata();
-//                if (columnMetadata == null) {
-//                    columnMetadata = queryTableColumnMetadata(tableModel.getTableName());
-//                    tableModel.setColumnMetadata(columnMetadata);
-//                }
-//                sqlList.add(sqlFunc.apply(tableModel));
-//                consumerList.add(SQLite3Utils.buildTableConsumer($object, tableModel));
-//            });
-//            int[] intArr = batchUpdate(sqlList.toArray(new String[0]), (index, statement) -> {
-//                consumerList.get(index).accept(statement);
-//            });
-//            for (int value: intArr) {
-//                retValue += value;
-//            }
-//        }
-//        return retValue;
-//    }
-//
-//    public int insert(Object object) throws SQLite3Exception {
-//        List<Object> objectList = new ArrayList<>(1);
-//        objectList.add(object);
-//        return insert(objectList);
-//    }
-//
-//    public int insert(List<?> objList) throws SQLite3Exception {
-//        return updateOrInsert(objList, TableModel::getInsertSQL);
-//    }
 
     /**
      * 批量更新处理（多个不同sql）

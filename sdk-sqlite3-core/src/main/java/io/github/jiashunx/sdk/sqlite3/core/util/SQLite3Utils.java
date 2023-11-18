@@ -25,7 +25,10 @@ public class SQLite3Utils {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLite3Utils.class);
 
-    private SQLite3Utils() {}
+    /**
+     * protected构造方法
+     */
+    protected SQLite3Utils() {}
 
     /**
      * 解析查询返回结果

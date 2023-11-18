@@ -71,7 +71,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBoolean(int parameterIndex, boolean x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, boolean:{}", parameterIndex, x);
             preparedStatement.setBoolean(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -80,7 +80,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setByte(int parameterIndex, byte x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, byte:{}", parameterIndex, x);
             preparedStatement.setByte(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -89,7 +89,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setShort(int parameterIndex, short x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, short:{}", parameterIndex, x);
             preparedStatement.setShort(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -98,7 +98,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setInt(int parameterIndex, int x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, int:{}", parameterIndex, x);
             preparedStatement.setInt(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -107,7 +107,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setLong(int parameterIndex, long x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, long:{}", parameterIndex, x);
             preparedStatement.setLong(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -116,7 +116,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setFloat(int parameterIndex, float x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, float:{}", parameterIndex, x);
             preparedStatement.setFloat(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -125,7 +125,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setDouble(int parameterIndex, double x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, double:{}", parameterIndex, x);
             preparedStatement.setDouble(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -134,7 +134,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, BigDecimal:{}", parameterIndex, x);
             preparedStatement.setBigDecimal(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -143,7 +143,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setString(int parameterIndex, String x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, String:{}", parameterIndex, x);
             preparedStatement.setString(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -152,7 +152,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBytes(int parameterIndex, byte[] x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, byte[]:{}", parameterIndex, x);
             preparedStatement.setBytes(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -161,7 +161,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setDate(int parameterIndex, Date x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, Date:{}", parameterIndex, x);
             preparedStatement.setDate(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -170,7 +170,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setTime(int parameterIndex, Time x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, Time:{}", parameterIndex, x);
             preparedStatement.setTime(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -179,7 +179,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, Timestamp:{}", parameterIndex, x);
             preparedStatement.setTimestamp(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -188,7 +188,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length:{}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length:{}", parameterIndex, length);
             preparedStatement.setAsciiStream(parameterIndex, x, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -197,7 +197,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length:{}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length:{}", parameterIndex, length);
             preparedStatement.setUnicodeStream(parameterIndex, x, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -206,7 +206,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length:{}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length:{}", parameterIndex, length);
             preparedStatement.setBinaryStream(parameterIndex, x, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -224,7 +224,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}, targetSqlType:{}", parameterIndex, x, targetSqlType);
+            logger.debug(">>set, index:{}, Object:{}, targetSqlType:{}", parameterIndex, x, targetSqlType);
             preparedStatement.setObject(parameterIndex, x, targetSqlType);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -233,7 +233,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setObject(int parameterIndex, Object x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, Object:{}", parameterIndex, x);
             preparedStatement.setObject(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -260,7 +260,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length:{}", parameterIndex, length);
+            logger.debug(">>set, index:{}, Reader#length:{}", parameterIndex, length);
             preparedStatement.setCharacterStream(parameterIndex, reader, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -269,7 +269,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setRef(int parameterIndex, Ref x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, Ref:{}", parameterIndex, x);
             preparedStatement.setRef(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -278,7 +278,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBlob(int parameterIndex, Blob x) throws SQLite3SqlException {
         try {
-            logger.debug(">>setBlob, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Blob:", parameterIndex);
             preparedStatement.setBlob(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -287,7 +287,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setClob(int parameterIndex, Clob x) throws SQLite3SqlException {
         try {
-            logger.debug(">>setClob, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Clob", parameterIndex);
             preparedStatement.setClob(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -313,7 +313,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}, calendar:{}", parameterIndex, x, cal);
+            logger.debug(">>set, index:{}, Date:{}, Calendar:{}", parameterIndex, x, cal);
             preparedStatement.setDate(parameterIndex, x, cal);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -322,7 +322,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}, calendar:{}", parameterIndex, x, cal);
+            logger.debug(">>set, index:{}, Time:{}, Calendar:{}", parameterIndex, x, cal);
             preparedStatement.setTime(parameterIndex, x, cal);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -331,7 +331,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}, calendar:{}", parameterIndex, x, cal);
+            logger.debug(">>set, index:{}, Timestamp:{}, Calendar:{}", parameterIndex, x, cal);
             preparedStatement.setTimestamp(parameterIndex, x, cal);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -349,7 +349,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setURL(int parameterIndex, URL x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, url:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, URL:{}", parameterIndex, x);
             preparedStatement.setURL(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -366,7 +366,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setRowId(int parameterIndex, RowId x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, rowId:{}", parameterIndex, x);
+            logger.debug(">>set, index:{}, RowId:{}", parameterIndex, x);
             preparedStatement.setRowId(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -375,7 +375,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNString(int parameterIndex, String value) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, value:{}", parameterIndex, value);
+            logger.debug(">>set, index:{}, String:{}", parameterIndex, value);
             preparedStatement.setNString(parameterIndex, value);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -384,7 +384,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length:{}", parameterIndex, length);
+            logger.debug(">>set, index:{}, Reader#length:{}", parameterIndex, length);
             preparedStatement.setNCharacterStream(parameterIndex, value, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -393,7 +393,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNClob(int parameterIndex, NClob value) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, NClob", parameterIndex);
             preparedStatement.setNClob(parameterIndex, value);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -402,7 +402,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, Reader#length: {}", parameterIndex, length);
             preparedStatement.setClob(parameterIndex, reader, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -411,7 +411,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length: {}", parameterIndex, length);
             preparedStatement.setBlob(parameterIndex, inputStream, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -420,7 +420,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, Reader#length: {}", parameterIndex, length);
             preparedStatement.setNClob(parameterIndex, reader, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -429,7 +429,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, SQLXML", parameterIndex);
             preparedStatement.setSQLXML(parameterIndex, xmlObject);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -447,7 +447,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length: {}", parameterIndex, length);
             preparedStatement.setAsciiStream(parameterIndex, x, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -456,7 +456,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, InputStream#length: {}", parameterIndex, length);
             preparedStatement.setBinaryStream(parameterIndex, x, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -465,7 +465,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}, length: {}", parameterIndex, length);
+            logger.debug(">>set, index:{}, Reader#length: {}", parameterIndex, length);
             preparedStatement.setCharacterStream(parameterIndex, reader, length);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -474,7 +474,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, InputStream", parameterIndex);
             preparedStatement.setAsciiStream(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -483,7 +483,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, InputStream", parameterIndex);
             preparedStatement.setBinaryStream(parameterIndex, x);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -492,7 +492,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Reader", parameterIndex);
             preparedStatement.setCharacterStream(parameterIndex, reader);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -501,7 +501,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Reader", parameterIndex);
             preparedStatement.setNCharacterStream(parameterIndex, value);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -510,7 +510,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setClob(int parameterIndex, Reader reader) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Reader", parameterIndex);
             preparedStatement.setClob(parameterIndex, reader);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -519,7 +519,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, InputStream", parameterIndex);
             preparedStatement.setBlob(parameterIndex, inputStream);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
@@ -528,7 +528,7 @@ public class SQLite3PreparedStatement implements AutoCloseable {
 
     public void setNClob(int parameterIndex, Reader reader) throws SQLite3SqlException {
         try {
-            logger.debug(">>set, index:{}", parameterIndex);
+            logger.debug(">>set, index:{}, Reader", parameterIndex);
             preparedStatement.setNClob(parameterIndex, reader);
         } catch (SQLException exception) {
             throw new SQLite3SqlException(exception);
