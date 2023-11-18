@@ -51,9 +51,7 @@ public class SQLite3JdbcTemplate {
      * @return 上下文-事务标志
      */
     private static boolean isInTxMode() {
-        boolean isInTxMode = TX_MODE.get() != null && TX_MODE.get();
-        logger.debug("==>>从上下文获取当前是否事务模式: {}", isInTxMode);
-        return isInTxMode;
+        return TX_MODE.get() != null && TX_MODE.get();
     }
 
     /**
@@ -66,11 +64,11 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
-     * 设置上下文数据库连接
+     * 设置上下文事务模式及数据库连接
      * @param connection 数据库连接
      */
     private static void setTxMode(SQLite3Connection connection) {
-        logger.debug("==>>设置上下文数据库连接");
+        logger.debug("==>>设置上下文事务模式及数据库连接");
         if (isInTxMode() && fetchTxConnection() != connection) {
             throw new SQLite3Exception("transaction connection conflict.");
         }
@@ -118,7 +116,7 @@ public class SQLite3JdbcTemplate {
      * 获取SQLite3写连接
      * @return SQLite3写连接
      */
-    private SQLite3Connection fetchWriteConnection() {
+    public SQLite3Connection fetchWriteConnection() {
         if (isInTxMode()) {
             return fetchTxConnection();
         }
@@ -139,7 +137,6 @@ public class SQLite3JdbcTemplate {
      * @param consumer 写处理消费
      */
     private void write(SQLite3Connection connection, Consumer<Connection> consumer) {
-        logger.debug("==>>写处理");
         connection.write(c -> {
             try {
                 consumer.accept(c);
@@ -169,7 +166,6 @@ public class SQLite3JdbcTemplate {
      * @return 写处理返回对象
      */
     private <R> R write(SQLite3Connection connection, Function<Connection, R> function) {
-        logger.debug("==>>写处理");
         return connection.write(c -> {
             try {
                 return function.apply(c);
@@ -185,7 +181,7 @@ public class SQLite3JdbcTemplate {
      * 获取SQLite3读连接
      * @return SQLite3读连接
      */
-    private SQLite3Connection fetchReadConnection() {
+    public SQLite3Connection fetchReadConnection() {
         if (isInTxMode()) {
             return fetchTxConnection();
         }
@@ -206,7 +202,6 @@ public class SQLite3JdbcTemplate {
      * @param consumer 读处理消费
      */
     private void read(SQLite3Connection connection, Consumer<Connection> consumer) {
-        logger.debug("==>>读处理");
         connection.read(c -> {
             try {
                 consumer.accept(c);
@@ -236,7 +231,6 @@ public class SQLite3JdbcTemplate {
      * @return 读处理返回对象
      */
     private <R> R read(SQLite3Connection connection, Function<Connection, R> function) {
-        logger.debug("==>>读处理");
         return connection.read(c -> {
             try {
                 return function.apply(c);
@@ -794,33 +788,34 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
-     * 批量事务处理（不可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
+     * 批量事务处理（可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
      * @param supplier 返回值supplier
      * @param <R> 返回值类型
      * @return 返回值
      * @throws SQLite3Exception SQLite3Exception
      */
     public <R> R doTransaction(Supplier<R> supplier) throws SQLite3Exception {
-        logger.debug("==>>批量事务处理");
-        boolean hasPrevTransaction = isInTxMode();
+        boolean isInTxMode = isInTxMode();
         SQLite3Connection sqLite3Connection = fetchWriteConnection();
-        setTxMode(sqLite3Connection);
+        if (!isInTxMode) {
+            setTxMode(sqLite3Connection);
+        }
         return write(sqLite3Connection, connection -> {
             try {
-                if (!hasPrevTransaction) {
+                if (!isInTxMode) {
                     connection.setAutoCommit(false);
                 }
                 try {
-                    return supplier.get();
-                } catch (Throwable exception) {
-                    throw new SQLite3Exception("doTransaction execute failed", exception);
-                } finally {
-                    if (!hasPrevTransaction) {
+                    R r = supplier.get();
+                    if (!isInTxMode) {
                         connection.commit();
                     }
+                    return r;
+                } catch (Throwable exception) {
+                    throw new SQLite3Exception("doTransaction execute failed", exception);
                 }
             } catch (Throwable exception) {
-                if (!hasPrevTransaction) {
+                if (!isInTxMode) {
                     try {
                         connection.rollback();
                     } catch (SQLException exception1) {
@@ -832,7 +827,7 @@ public class SQLite3JdbcTemplate {
                 }
                 throw new SQLite3Exception("doTransaction failed(transaction-mode => ignore rollback)", exception);
             } finally {
-                if (!hasPrevTransaction) {
+                if (!isInTxMode) {
                     resetTxMode();
                 }
             }
@@ -840,7 +835,7 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
-     * 批量事务处理（不可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
+     * 批量事务处理（可重入）（嵌套事务，例如执行多个insert，需使用当前doTransaction进行包裹处理）
      * @param voidFunc 无参无返回值Function
      * @throws SQLite3Exception SQLite3Exception
      */

@@ -284,7 +284,6 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception 不为running状态则抛出异常
      */
     private void checkReadConnectionPoolStatus() throws SQLite3Exception {
-        logger.debug("==>>读连接池状态检查（检查是否运行中）");
         if (readConnectionPoolStatus == SQLite3ConnectionPoolStatus.CLOSING) {
             throw new SQLite3Exception(String.format("connection pool [%s] for reading is closing.", getPoolName()));
         }
@@ -302,7 +301,6 @@ public class SQLite3ConnectionPool {
      * @throws SQLite3Exception 不为running状态则抛出异常
      */
     private void checkWriteConnectionPoolStatus() throws SQLite3Exception {
-        logger.debug("==>>写连接池状态检查（检查是否运行中）");
         if (writeConnectionPoolStatus == SQLite3ConnectionPoolStatus.CLOSING) {
             throw new SQLite3Exception(String.format("connection pool [%s] for writing is closing.", getPoolName()));
         }

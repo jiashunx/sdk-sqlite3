@@ -160,7 +160,6 @@ public abstract class SQLite3Connection {
      */
     private void doCheck(VoidFunc voidFunc) throws SQLite3Exception {
         doRead(() -> {
-            logger.debug("==>>数据库连接状态检查处理（检查是否已关闭）");
             if (closed) {
                 throw new SQLite3Exception("connection is closed.");
             }
