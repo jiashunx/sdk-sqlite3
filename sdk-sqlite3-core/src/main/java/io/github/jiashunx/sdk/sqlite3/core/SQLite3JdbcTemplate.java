@@ -586,14 +586,45 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
+     * 删除表（存在时才会删除，不存在时返回-1）
+     * @param tableName 表名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public int dropTableIfExists(String tableName) throws SQLite3Exception {
+        if (isTableExists(tableName)) {
+            return dropTable(tableName);
+        }
+        return -1;
+    }
+
+    /**
+     * 已删除：SQLite3不支持删除列
      * 删除表字段
      * @param tableName 表名称
      * @param columnName 字段名称
      * @return 操作返回int值
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public int dropTableColumn(String tableName, String columnName) throws SQLite3Exception {
         return executeUpdate("ALTER TABLE " + tableName + " DROP COLUMN " + columnName);
+    }
+
+    /**
+     * 已删除：SQLite3不支持删除列
+     * 删除表字段（存在时才会删除，不存在时返回-1）
+     * @param tableName 表名称
+     * @param columnName 字段名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    @Deprecated
+    public int dropTableColumnIfExists(String tableName, String columnName) throws SQLite3Exception {
+        if (isTableColumnExists(tableName, columnName)) {
+            return dropTableColumn(tableName, columnName);
+        }
+        return -1;
     }
 
     /**
@@ -607,6 +638,19 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
+     * 删除索引（存在时才会删除，不存在时返回-1）
+     * @param indexName 索引名称
+     * @return  操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public int dropIndexIfExists(String indexName) throws SQLite3Exception {
+        if (isIndexExists(indexName)) {
+            return dropIndex(indexName);
+        }
+        return -1;
+    }
+
+    /**
      * 删除视图
      * @param viewName 视图名称
      * @return 操作返回int值
@@ -617,6 +661,19 @@ public class SQLite3JdbcTemplate {
     }
 
     /**
+     * 删除视图（存在时才会删除，不存在时返回-1）
+     * @param viewName 视图名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public int dropViewIfExists(String viewName) throws SQLite3Exception {
+        if (isViewExists(viewName)) {
+            return dropView(viewName);
+        }
+        return -1;
+    }
+
+    /**
      * 删除触发器
      * @param triggerName 触发器名称
      * @return 操作返回int值
@@ -624,6 +681,19 @@ public class SQLite3JdbcTemplate {
      */
     public int dropTrigger(String triggerName) throws SQLite3Exception {
         return executeUpdate("DROP TRIGGER " + triggerName);
+    }
+
+    /**
+     * 删除触发器（存在时才会删除，不存在时返回-1）
+     * @param triggerName 触发器名称
+     * @return 操作返回int值
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public int dropTriggerIfExists(String triggerName) throws SQLite3Exception {
+        if (isTriggerExists(triggerName)) {
+            return dropTrigger(triggerName);
+        }
+        return -1;
     }
 
     /**
