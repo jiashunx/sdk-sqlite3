@@ -3,7 +3,7 @@
   <parent>
     <groupId>io.github.jiashunx</groupId>
     <artifactId>sdk-sqlite3</artifactId>
-    <version>x.y.z-SNAPSHOT</version>
+    <version>1.0.0.RELEASE</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>sdk-sqlite3-mapping</artifactId>
