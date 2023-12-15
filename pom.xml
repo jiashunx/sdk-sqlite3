@@ -4,11 +4,12 @@
   <artifactId>sdk-sqlite3</artifactId>
   <name>sdk-sqlite3</name>
   <packaging>pom</packaging>
-  <version>x.y.z-SNAPSHOT</version>
+  <version>${revision}</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <jdk.compiler.version>11</jdk.compiler.version>
+    <revision>x.y.z-SNAPSHOT</revision>
   </properties>
   <dependencies>
     <dependency>
