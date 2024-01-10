@@ -2,7 +2,7 @@
 <table-metadata id="mapping-test">
     <!-- 数据查询SQL -->
     <dql>
-        <sql id="00000000000001" desc="" class="io.github.jiashunx.sdk.sqlite3.mapping.SQLite3JdbcTemplate4.AAA">
+        <sql id="00000000000001" desc="" class="io.github.jiashunx.sdk.sqlite3.mapping.SQLite3JdbcTemplateTest4.AAA">
             <![CDATA[
                 select * from aaa;
             ]]>

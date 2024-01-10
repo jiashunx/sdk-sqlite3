@@ -16,9 +16,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 /**
- * SQLite3模型映射服务（支持单机缓存）
+ * SQLite3模型映射服务（取消支持单机缓存）
  * @author jiashunx
  */
 public abstract class SQLite3Service<Entity, ID> {
@@ -36,11 +37,13 @@ public abstract class SQLite3Service<Entity, ID> {
     /**
      * 是否支持单机缓存（true-支持，false-不支持）
      */
-    private final boolean cacheEnabled;
+    @Deprecated
+    private final boolean cacheEnabled = false;
 
     /**
      * listAll方式是否已执行
      */
+    @Deprecated
     private volatile boolean listAllMethodInvoked = false;
 
     /**
@@ -77,7 +80,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws SQLite3Exception SQLite3Exception
      */
     public SQLite3Service(SQLite3JdbcTemplate jdbcTemplate, boolean cacheEnabled) throws NullPointerException, SQLite3Exception {
-        this.cacheEnabled = cacheEnabled;
+        // this.cacheEnabled = cacheEnabled;
         this.jdbcTemplate = Objects.requireNonNull(jdbcTemplate);
         try {
             this.defaultEntity = getEntityClass().newInstance();
@@ -98,6 +101,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * 获取实体缓存（ID与实体对象映射map）
      * @return 实体缓存数据
      */
+    @Deprecated
     private Map<ID, Entity> getEntityCacheMap() {
         if (listAllMethodInvoked) {
             return entityCacheMap;
@@ -141,6 +145,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * 获取查询所有数据的查询SQL
      * @return 查询SQL
      */
+    @Deprecated
     protected String sqlOfSelectAll() {
         return SQLite3Utils.getClassTableModel(getEntityClass()).sqlOfSelectAll();
     }
@@ -151,6 +156,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public List<Entity> listAllWithNoCache() throws NullPointerException, SQLite3Exception {
         return getJdbcTemplate().queryForList(sqlOfSelectAll(), getEntityClass());
     }
@@ -161,6 +167,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public List<Entity> listAll() throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return listAllWithNoCache();
@@ -183,6 +190,106 @@ public abstract class SQLite3Service<Entity, ID> {
             ref.set(new ArrayList<>(entityCacheMap.values()));
         });
         return ref.get();
+    }
+
+    /**
+     * 查询实体列表（查询所有字段）
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> select() throws NullPointerException, SQLite3Exception {
+        return select(builder -> {}, statement -> {});
+    }
+
+    /**
+     * 查询实体列表（查询所有字段）
+     * @param sqlConsumer 拼接查询条件: 拼接: where field1=? and field2=?
+     * @param statementConsumer sql语句预编译处理
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> select(Consumer<StringBuilder> sqlConsumer, Consumer<SQLite3PreparedStatement> statementConsumer) throws NullPointerException, SQLite3Exception {
+        return getJdbcTemplate().queryForList(SQLite3Utils.getClassTableModel(getEntityClass()).sqlOfSelectAll(sqlConsumer), statementConsumer, getEntityClass());
+    }
+
+    /**
+     * 查询实体列表（查询所有字段）
+     * @param pageIndex 当前页数（从1开始）
+     * @param pageSize 分页大小
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectWithPage(int pageIndex, int pageSize) throws NullPointerException, SQLite3Exception {
+        return selectWithPage(pageIndex, pageSize, builder -> {}, statement -> {});
+    }
+
+    /**
+     * 查询实体列表（查询所有字段）
+     * @param pageIndex 当前页数（从1开始）
+     * @param pageSize 分页大小
+     * @param sqlConsumer 拼接查询条件: 拼接: where field1=? and field2=?
+     * @param statementConsumer sql语句预编译处理
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectWithPage(int pageIndex, int pageSize, Consumer<StringBuilder> sqlConsumer, Consumer<SQLite3PreparedStatement> statementConsumer) throws NullPointerException, SQLite3Exception {
+        return getJdbcTemplate().queryForList(SQLite3Utils.getClassTableModel(getEntityClass()).sqlOfSelectAllWithPage(sqlConsumer, pageIndex, pageSize), statementConsumer, getEntityClass());
+    }
+
+    /**
+     * 查询实体列表（查询指定字段）
+     * @param fieldNames 待查询字段名称列表
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectFields(List<String> fieldNames) throws NullPointerException, SQLite3Exception {
+        return selectFields(fieldNames, builder -> {}, statement -> {});
+    }
+
+    /**
+     * 查询实体列表（查询指定字段）
+     * @param fieldNames 待查询字段名称列表
+     * @param sqlConsumer 拼接查询条件: 拼接: where field1=? and field2=?
+     * @param statementConsumer sql语句预编译处理
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectFields(List<String> fieldNames, Consumer<StringBuilder> sqlConsumer, Consumer<SQLite3PreparedStatement> statementConsumer) throws NullPointerException, SQLite3Exception {
+        return getJdbcTemplate().queryForList(SQLite3Utils.getClassTableModel(getEntityClass()).sqlOfSelectFields(fieldNames, sqlConsumer), statementConsumer, getEntityClass());
+    }
+
+    /**
+     * 查询实体列表（查询指定字段）
+     * @param fieldNames 待查询字段名称列表
+     * @param pageIndex 当前页数（从1开始）
+     * @param pageSize 分页大小
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectFieldsWithPage(List<String> fieldNames, int pageIndex, int pageSize) throws NullPointerException, SQLite3Exception {
+        return selectFieldsWithPage(fieldNames, pageIndex, pageSize, builder -> {}, statement -> {});
+    }
+
+    /**
+     * 查询实体列表（查询指定字段）
+     * @param fieldNames 待查询字段名称列表
+     * @param pageIndex 当前页数（从1开始）
+     * @param pageSize 分页大小
+     * @param sqlConsumer 拼接查询条件: 拼接: where field1=? and field2=?
+     * @param statementConsumer sql语句预编译处理
+     * @return 实体列表
+     * @throws NullPointerException NullPointerException
+     * @throws SQLite3Exception SQLite3Exception
+     */
+    public List<Entity> selectFieldsWithPage(List<String> fieldNames, int pageIndex, int pageSize, Consumer<StringBuilder> sqlConsumer, Consumer<SQLite3PreparedStatement> statementConsumer) throws NullPointerException, SQLite3Exception {
+        return getJdbcTemplate().queryForList(SQLite3Utils.getClassTableModel(getEntityClass()).sqlOfSelectFieldsWithPage(fieldNames, sqlConsumer, pageIndex, pageSize), statementConsumer, getEntityClass());
     }
 
     /**
@@ -216,6 +323,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public Entity find(ID id) throws NullPointerException, SQLite3Exception {
         if (id == null) {
             throw new NullPointerException();
@@ -269,6 +377,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public Entity insert(Entity entity) throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return insertWithNoCache(entity);
@@ -307,6 +416,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public List<Entity> insert(List<Entity> entities) throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return insertWithNoCache(entities);
@@ -344,6 +454,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public Entity update(Entity entity) throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return updateWithNoCache(entity);
@@ -383,6 +494,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public List<Entity> update(List<Entity> entities) throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return updateWithNoCache(entities);
@@ -513,6 +625,7 @@ public abstract class SQLite3Service<Entity, ID> {
      * @throws NullPointerException NullPointerException
      * @throws SQLite3Exception SQLite3Exception
      */
+    @Deprecated
     public int deleteById(List<ID> idList) throws NullPointerException, SQLite3Exception {
         if (!cacheEnabled) {
             return deleteByIdWithNoCache(idList);

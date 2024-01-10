@@ -13,15 +13,17 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * SQLite3JdbcTemplate单元测试（模型映射）
  * @author jiashunx
  */
-public class SQLite3JdbcTemplate4 {
+public class SQLite3JdbcTemplateTest4 {
 
     private SQLite3JdbcTemplate jdbcTemplate;
 
@@ -140,6 +142,11 @@ public class SQLite3JdbcTemplate4 {
         assertEquals("fuckX", new String(entity1.getFieldBinary(), StandardCharsets.UTF_8));
         assertEquals("fuckY", new String(entity1.getFieldVarbinary(), StandardCharsets.UTF_8));
         assertEquals("fuckZ", new String(entity1.getFieldLongvarbinary(), StandardCharsets.UTF_8));
+
+        List<AAA> aaaList1 = service.selectWithPage(1, 10);
+        assertTrue(aaaList1.size() > 0);
+        List<AAA> aaaList2 = service.selectFieldsWithPage(List.of("field_id", "field_varchar"), 1, 10);
+        assertTrue(aaaList2.size() > 0);
     }
 
     public static class AAAService extends SQLite3Service<AAA, String> {
