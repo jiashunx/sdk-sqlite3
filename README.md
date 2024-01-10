@@ -11,13 +11,13 @@
 - 支持版本：
    - JDK11+
 
-- Maven依赖(最新版本: <b>1.0.0.RELEASE</b>)：
+- Maven依赖(最新版本: <b>x.y.z-SNAPSHOT</b>)：
 
 ```text
    <dependency>
        <groupId>io.github.jiashunx</groupId>
        <artifactId>sdk-sqlite3</artifactId>
-       <version>1.0.0.RELEASE</version>
+       <version>x.y.z-SNAPSHOT</version>
    </dependency>
 ```
 
