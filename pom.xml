@@ -4,7 +4,7 @@
   <artifactId>sdk-sqlite3</artifactId>
   <name>sdk-sqlite3</name>
   <packaging>pom</packaging>
-  <version>x.y.z-SNAPSHOT</version>
+  <version>1.1.0.RELEASE</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
